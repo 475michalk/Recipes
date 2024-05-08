@@ -56,15 +56,15 @@ const RecipeSchema=new mongoose.Schema({
         default: false
       },
       user: {
-        _id:{
-           type: ObjectId,
-           required:true
-
+        _id: {
+            type: mongoose.Types.ObjectId,
+            required: true
         },
-        name:{
-            type:String,
-            required:true
+        name: {
+            type: String,
+            required: true
         }
+
        
       }
  });
