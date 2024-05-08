@@ -58,7 +58,8 @@ const RecipeSchema=new mongoose.Schema({
       user: {
         _id: {
             type: mongoose.Types.ObjectId,
-            required: true
+            required: true,
+            ref:"Users"
         },
         name: {
             type: String,
@@ -69,5 +70,5 @@ const RecipeSchema=new mongoose.Schema({
       }
  });
    
-module.exports = mongoose.model("Recipes", RecipeSchema);
+module.exports.Recipes= mongoose.model("Recipes", RecipeSchema);
 
