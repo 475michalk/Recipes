@@ -12,13 +12,7 @@ const UserSchema = new mongoose.Schema({
         match: /^[a-zA-Z]/,
         // unique: true // אם ברצונך ששם המשתמש יהיה ייחודי
     },
-    password: {
-        type: String,
-        required: true,
-        match: /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/,
-        minLength:4,
-        maxLength:16
-    },
+    
     email: {
         type: String,
         required: true,
@@ -28,10 +22,17 @@ const UserSchema = new mongoose.Schema({
             "Please enter a valid email",
           ],
      },
+     password: {
+        type: String,
+        required: true,
+        match: /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/,
+        minLength:4,
+        maxLength:16
+    },
     address: {
         type: String,
         minlength: 3,
-        maxlength: 20,
+        maxlength: 50,
         required: true,
     },
     role: {

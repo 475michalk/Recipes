@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const Recipe = require("../models/Recipes"); 
 const Category = require("../models/Category");
+const mongoose = require("mongoose");
 
 
 // קבלת כל המתכונים
@@ -20,6 +20,16 @@ exports.getAllRecipes = async (req, res, next) => {
         next(error);
     }
 }
+// exports.getAllR = async (req, res, next) => {
+//     try {
+//         const recipes = await Recipes.find().select('-__v');
+//         return res.json(recipes);
+//     } catch (error) {
+//         console.log(error); // יודפס השגיאה בקונסול
+//         next(error);
+//     }
+// };
+
 
 // ID קבלת מתכון לפי 
 exports.getRecipesById = (req, res, next) => {

@@ -26,26 +26,28 @@ exports.SignIn= async(req,res,next)=>{
     }
 }
 
-exports.SignUp=async(req,res,next)=>{
+exports.SignUp = async (req, res, next) => {
+    const { nameUser, email, password, address, role } = req.body;
 
-    const {nameUser, email, password,address,role}=req.body;
-    const isValid=userValidators.login.validate({email,password});
-    if(isValid.error){
-        return next({message:isValid.error.message})
-    }
-    try{
+    try {
+        // בדיקה אם המשתמש כבר קיים במסד הנתונים
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ error: { message: "User already exists" } });
+        }
 
-    const user = new User({ username, email, password, address, role });
+        // יצירת המשתמש אם הוא עדיין לא קיים
+        const user = new User({ nameUser, email, password, address, role });
         await user.save();
-        console.log(user);
+
         const token = generateToken(user);
         user.password = "****";
         return res.status(201).json({ user, token });
     } catch (error) {
-        return next({ message: error.message, status: 409 })
+        return next({ message: error.message, status: 500 });
     }
-
 }
+
 
 exports.getAllUsers= async(req, res, next) =>{
     try {

@@ -10,6 +10,7 @@ const router=express.Router();
 
 router.post("/signIn",SignIn);
 router.post("/signUp",SignUp);
-router.get("/",isAdmin,getAllUsers);
+router.get("/",getAllUsers);
+//router.get("/",isAdmin,getAllUsers);
 
 module.exports = router;

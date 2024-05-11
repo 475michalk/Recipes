@@ -26,7 +26,7 @@ app.use(cors());//גישה לכל הכתובות
 app.get('/',(req,res)=>{
     res.send('wellcome');
 });
-app.use("/User", UserRouter)
+app.use("/user", UserRouter)
 app.use("/recipe", RecipeRouter);
 app.use("/category", CategoryRouter);
 
