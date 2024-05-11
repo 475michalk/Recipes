@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const Joi=require("joi");
+const Jwt=require("jsonwebtoken");
+const bcrypt=require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
     nameUser: {
@@ -27,8 +30,9 @@ const UserSchema = new mongoose.Schema({
      },
     address: {
         type: String,
-        min: 3,
-        max: 20
+        minlength: 3,
+        maxlength: 20,
+        required: true,
     },
     role: {
         type: String,
@@ -36,5 +40,32 @@ const UserSchema = new mongoose.Schema({
         default:"User"
     }
 });
+UserSchema.pre('save', async function (next) {
+    const salt = +process.env.BCRYPT_SALT | 10;
+    bcrypt.hash(this.password, salt, async (err, hashPass) => {
+        if (err)
+            throw new Error(err.message);
 
-module.exports = mongoose.model("Users", UserSchema);
+        this.password = hashPass;
+        next()
+    })
+});
+
+module.exports.UserSchema=UserSchema;
+module.exports.User = mongoose.model("users", UserSchema);
+
+
+module.exports.userValidators = {
+    login: Joi.object().keys({
+        email: Joi.string().email().required(),
+        password: Joi.string().min(3).max(10),
+    })
+};
+
+//יצירת טוקן
+module.exports.generateToken=(user)=> {
+    const privateKey = process.env.JWT_SECRET || 'JWT_SECRET';
+    const data = { role: user.role, user_id: user._id };
+    const token = Jwt.sign(data, privateKey, { expiresIn: '1h' });
+    return token;
+}

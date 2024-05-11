@@ -3,8 +3,8 @@ const morgan = require("morgan");
 const cors = require("cors");
 
 const RecipeRouter = require("./routes/RecipesRoute");
-
-
+const CategoryRouter = require("./routes/CategoryRoute");
+const UserRouter = require("./routes/UsersRoute");
 const { pageNotFound, serverNotFound } = require("./middlewares/hendleError");
 
 require('dotenv').config();
@@ -24,8 +24,9 @@ app.use(cors());//גישה לכל הכתובות
 app.get('/',(req,res)=>{
     res.send('wellcome');
 })
-
+app.use("/User", UserRouter)
 app.use("/recipe", RecipeRouter);
+app.use("/category", CategoryRouter);
 
 // אם הגענו לכאן - ניתוב לא קיים
 app.use(pageNotFound);
