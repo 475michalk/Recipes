@@ -6,7 +6,7 @@ const{
     getRecipesById,
     getRecipesByUser,
     getRecipesByPreparationTime,
-    addRecipes,
+    addRecipe,
     updateRecipe,
     deleteRecipe
 
@@ -17,7 +17,7 @@ router.get("/", getAllRecipes);
 router.get("/:id", getRecipesById);
 router.get("/recipeByUserId", getRecipesByUser);
 router.get("/recipeByPreparationTime",getRecipesByPreparationTime);
-router.post("/", addRecipes);
+router.post("/", addRecipe);
 router.put("/:id", updateRecipe);
 router.delete("/:id", deleteRecipe);
 

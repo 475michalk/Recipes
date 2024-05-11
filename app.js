@@ -6,6 +6,8 @@ const RecipeRouter = require("./routes/RecipesRoute");
 const CategoryRouter = require("./routes/CategoryRoute");
 const UserRouter = require("./routes/UsersRoute");
 const { pageNotFound, serverNotFound } = require("./middlewares/hendleError");
+// const { auth } = require("./middlewares/auth");
+
 
 require('dotenv').config();
 require('./config/DB');
@@ -23,7 +25,7 @@ app.use(cors());//גישה לכל הכתובות
 
 app.get('/',(req,res)=>{
     res.send('wellcome');
-})
+});
 app.use("/User", UserRouter)
 app.use("/recipe", RecipeRouter);
 app.use("/category", CategoryRouter);

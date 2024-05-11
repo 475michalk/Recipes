@@ -12,3 +12,4 @@ router.post("/signIn",SignIn);
 router.post("/signUp",SignUp);
 router.get("/",isAdmin,getAllUsers);
 
+module.exports = router;

@@ -1,15 +1,12 @@
-const express= require("express");
-const {
+const express = require("express");
+const { getAllCategories,
+     getAllRecipesByCategory,
+      getCategoryById } = require("../controllers/CategoryController");
 
-    getAllCategories,
-    getAllRecipesByCategory,
-    getCategoryById
-}=require("../controllers/CategoryController");
+const router = express.Router(); // צור אובייקט חדש של Router
 
-const router=express.Router;
-
-router.get("/",getAllCategories);
+router.get("/", getAllCategories);
 router.get("/RecipesByCategory", getAllRecipesByCategory);
-router.get("/:id",getCategoryById);
+router.get("/:id", getCategoryById);
 
 module.exports = router;
