@@ -4,15 +4,17 @@ const UserSchema = new mongoose.Schema({
     nameUser: {
         type: String,
         required: true,
-        min: 3,
-        max: 20,
-        match: /^[a-zA-Z0-9]*$/,
+        minLength: 2,
+        maxLength: 20,
+        match: /^[a-zA-Z]/,
         // unique: true // אם ברצונך ששם המשתמש יהיה ייחודי
     },
     password: {
         type: String,
         required: true,
-        match: /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/
+        match: /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/,
+        minLength:4,
+        maxLength:16
     },
     email: {
         type: String,
@@ -30,7 +32,8 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["מנהל", "משתמש רשום"]
+        enum: ["Admin", "User"],
+        default:"User"
     }
 });
 

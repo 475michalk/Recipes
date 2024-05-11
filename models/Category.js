@@ -6,19 +6,26 @@ const CategorySchema=new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        min:1
+      
       },
       description: {
         type: String,
         required: true,
-        min:5,
-        max:50
+        minLength:5,
+        maxLength:50
       },
-      numberOfRecipe: {
-        type: Number,
-        required: true,
-        min: 0
-      },
+     Recipes:[{
+      id:{
+        type:Number,
+        require:true
+      }
+      ,name:{
+       type:String,
+       require:true,
+       minLength:2
+      }
+      
+     }],
       image: {
         type: String
       }
