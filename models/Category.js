@@ -9,6 +9,7 @@ const RecipeSchema=new mongoose.Schema({
     type:String
   },
 })
+
 const CategorySchema=new mongoose.Schema({
 
       description: {
