@@ -1,6 +1,8 @@
-const Recipe = require("../models/Recipes"); 
-const Category = require("../models/Category");
 const mongoose = require("mongoose");
+const {Category} = require("../models/Category");
+// const { Recipes } = require('../models/Recipes');
+const { Recipe } = require('../models/Recipes');
+
 
 
 // קבלת כל המתכונים
@@ -73,29 +75,65 @@ exports.getRecipesByPreparationTime = async (req, res, next) => {
 };
 
 // הוספת מתכון חדש
+// exports.addRecipe = async (req, res, next) => {
+//     try {
+    
+//       const v = recipeValidators.addRecipeAndUpdate.validate(req.body);
+//       if (v.error) return next({ message: v.error.message });
+//       else {
+//         const nameCategory = req.body.nameCategory;
+//         let category = await Category.findOne({ description: nameCategory });
+//         if (!category) {
+//           category = new Category({ description: nameCategory });
+//           await category.save();
+//         }
+//         category.recipes.push({ _id: req.body._id, name: req.body.name });
+//         await category.save();
+//         const recipe = new Recipe(req.body);
+//         await recipe.save();
+//         return res.status(201).json(recipe);
+//       }
+//     } catch(error) {
+//       next(error);
+//     }
+//   };
 exports.addRecipe = async (req, res, next) => {
     try {
         const newRecipe = new Recipe(req.body);
         await newRecipe.save();
-        newRecipe.categories.forEach(async category => {
-            let c = await Category.findOne({ name: category })
-            if (!c) {
-                try {
-                    const newCategory = new Category({ name: category, recipes: [] }); // שינוי כאן מ-c ל-category
-                    await newCategory.save();
-                    c = newCategory;
-                } catch (err) {
-                    next(err);
+  
+        // Handle category associations if categories exist in the request
+        if (req.body.categories && req.body.categories.length > 0) {
+            const categoryPromises = req.body.categories.map(async category => {
+                let c = await Category.findOne({ name: category });
+    
+                if (!c) {
+                    try {
+                        c = new Category({ name: category, recipes: [] });
+                        await c.save();
+                    } catch (err) {
+                        console.log(err);
+                        next(err);
+                    }
                 }
-            }
-            category.recipes.push({ _id: newRecipe._id, name: newRecipe.name })
-            await category.save();
-        })
+    
+                c.recipes.push({ _id: newRecipe._id, name: newRecipe.name });
+                await c.save();
+            });
+    
+            // Wait for all category promises to resolve before continuing
+            await Promise.all(categoryPromises);
+        }
+  
+        // Send the newly created recipe back to the client with a 201 Created status code
         return res.status(201).json(newRecipe);
     } catch (error) {
+        // Handle any errors that occur during the process and pass them to the next middleware
         next(error);
     }
-}
+};
+
+
 
 // ID עדכון מתכון לפי 
 exports.updateRecipe = async (req, res, next) => {
