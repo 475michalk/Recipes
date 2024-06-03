@@ -7,7 +7,7 @@ exports.pageNotFound = (req, res, next) => {
 }
 exports.serverNotFound = (error, req, res, next) => {
     res.status(error.status || 500);
-    console.log("e");
+    
     res.json({
         error: {
             message: error.message,

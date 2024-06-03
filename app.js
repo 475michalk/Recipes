@@ -18,6 +18,7 @@ const app=express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // req.body
 
+
 app.use(morgan("dev"));//הדפסת המידע בכל בקשה
 
 app.use(cors());//גישה לכל הכתובות
@@ -26,6 +27,11 @@ app.use(cors());//גישה לכל הכתובות
 app.get('/',(req,res)=>{
     res.send('wellcome');
 });
+
+
+app.use('/images', express.static('uploads'));
+
+
 app.use("/user", UserRouter)
 app.use("/recipe", RecipeRouter);
 app.use("/category", CategoryRouter);

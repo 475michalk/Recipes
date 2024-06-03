@@ -4,15 +4,15 @@ const { Schema } = mongoose;
 const RecipeSchema = new Schema({
   nameRecipe: {
     type: String,
-    required: true,
+    // required: true,
     minlength: 3,
     maxlength: 25
   },
   descriptionRecipe: {
     type: String,
-    required: true,
+    // required: true,
     minlength: 5,
-    maxlength: 50
+    maxlength: 200
   },
   categoryName: {
     type: [String],
@@ -20,12 +20,12 @@ const RecipeSchema = new Schema({
   },
   preparationTime: {
     type: Number,
-    required: true,
+    // required: true,
     min: 0
   },
   level: {
     type: Number,
-    required: true,
+    // required: true,
     min: 1,
     max: 5
   },
@@ -46,15 +46,12 @@ const RecipeSchema = new Schema({
   instructionRecipe: {
     type: String
   },
-  images: {
-    type: [String]
-  },
   privateYesOrNo: {
     type: Boolean,
     default: false
   },
-  addByUser: {
-    UserId: {
+  addedByUsers: [{
+    userId: {
       type: mongoose.Types.ObjectId,
       required: true,
       ref: "Users"
@@ -63,8 +60,9 @@ const RecipeSchema = new Schema({
       type: String,
       required: true
     }
-  }
+  }],
+  image: [String]
+  
 });
 
-module.exports.RecipeSchema=RecipeSchema;
 module.exports.Recipe = mongoose.model('Recipe', RecipeSchema);
