@@ -3,6 +3,25 @@ const { Category } = require("../models/Category");
 const { Recipe } = require('../models/Recipes');
 const { upload } = require('../middlewares/uploadFile');
 
+
+const fs = require('fs');
+const path = require('path');
+
+// פונקציה שמחזירה את רשימת כל התמונות מתקיית uploads
+exports.getAllImages = (req, res) => {
+  const uploadDir = path.join(__dirname, '../uploads');
+
+  fs.readdir(uploadDir, (err, files) => {
+    if (err) {
+      return res.status(500).send('Unable to scan directory: ' + err);
+    }
+
+    // מחזיר את רשימת כתובות התמונות
+    const images = files.map(file => `/images/${file}`);
+    res.json(images);
+  });
+};
+
 // קבלת כל המתכונים
 exports.getAllRecipes = async (req, res, next) => {
     let { search, page, perPage } = req.query;
@@ -30,6 +49,27 @@ exports.getAllR = async (req, res, next) => {
         console.log(error); // יודפס השגיאה בקונסול
         next(error);
     }
+};
+
+
+exports.getRecipesByUserId = async (req, res) => {
+  try {
+    const userId = req.user.user_id; // שליפת ה-ID של המשתמש מהטוקן
+    console.log("User ID:", userId);
+
+    const recipes = await Recipe.find({ 'addedByUsers.userId': userId });
+
+    console.log(userId);
+
+    if (!recipes || recipes.length === 0) {
+      return res.status(404).json({ message: "No recipes found for the given user ID" });
+    }
+
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.error('Error fetching recipes by user ID:', error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 
@@ -76,46 +116,56 @@ exports.getRecipesByPreparationTime = async (req, res, next) => {
 // Update the createRecipe function to handle JSON data and multiple image files separately
 exports.createRecipe = async (req, res) => {
   try {
-    // Checking what comes in req.body
-    console.log("Request body:", req.body);
-    console.log("Request files:", req.files);
-
-    // Parse JSON data from the request body
     const recipeData = req.body;
-    console.log(req.body);
 
-    // Create a new Recipe object with the data from the JSON body
+    if (!req.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const userId = req.user.user_id;
+    const userName = req.user.nameUser;
+
     const newRecipe = new Recipe({
-
-      name: recipeData.nameRecipe,
-      description: recipeData.descriptionRecipe,
-      category: recipeData.categoryName,
+      nameRecipe: recipeData.nameRecipe,
+      descriptionRecipe: recipeData.descriptionRecipe,
+      categoryName: JSON.parse(recipeData.categoryName),
       preparationTime: recipeData.preparationTime,
       level: recipeData.level,
-      layers: recipeData.layers,
-      instruction: recipeData.instructionRecipe,
-      private: recipeData.privateYesOrNo,
-      // Add other fields as needed from the JSON data
+      dateAdd: recipeData.dateAdd,
+      layers: JSON.parse(recipeData.layers),
+      instructionRecipe: recipeData.instructionRecipe,
+      privateYesOrNo: recipeData.privateYesOrNo,
+      image: JSON.parse(recipeData.image),
+      addedByUsers: [{ userId, name: userName }],
     });
 
-    console.log(newRecipe.name);
-    // Handle multiple image file uploads separately
     if (req.files && req.files.length > 0) {
-      console.log("true");
-      const imagePaths = req.files.map((file) => file.path);
+      const imagePaths = req.files.map(file => file.filename);
       newRecipe.image = imagePaths;
-
-    } else {
-      console.log("No image files uploaded");
     }
 
     const savedRecipe = await newRecipe.save();
 
-    res.status(201).json(savedRecipe); // Returning the new recipe saved in the response
+    const categoryPromises = newRecipe.categoryName.map(async categoryName => {
+      let category = await Category.findOne({ name: categoryName });
+      if (!category) {
+        category = new Category({ name: categoryName, description: '' }); // Adjust as necessary
+        await category.save();
+      }
+      category.recipes.push(savedRecipe._id);
+      await category.save();
+    });
+
+    await Promise.all(categoryPromises);
+
+    res.status(201).json(savedRecipe);
   } catch (error) {
-    res.status(400).json({ error: error.message }); // Handling errors and sending an appropriate response
+    console.error('Error creating recipe:', error);
+    res.status(400).json({ error: error.message });
   }
 };
+
+
 
 
 
@@ -132,7 +182,7 @@ exports.addRecipe1 = async (req, res, next) => {
     console.log(newRecipe);
     // הוספת נתיבים של התמונות אם קיימות בקבצים
     if (req.files && req.files.length > 0) {
-      newRecipe.images = req.files.map(file => file.path);
+      newRecipe.image = req.files.map(file => file.path);
     }
 
     // שמירת המתכון במסד הנתונים

@@ -1,15 +1,26 @@
-const Category=require("../models/Category");
 const mongoose=require("mongoose");
 
-exports.getAllCategories=async (req,res,next)=>{
-    try{
-        const categories=await Category.find({}, {_id:1, name:1}).select('-__v');
-        return res.json(categories);
+const Category = require("../models/Category");
+
+exports.getAllCategories = async (req, res, next) => {
+    try {
+      const categories = await Category.find().select('name');
+      res.json(categories);
+    } catch (error) {
+      next(error);
     }
-    catch(error){
-        next(error);
+  };
+  
+  exports.createCategory = async (req, res, next) => {
+    try {
+      const { name, description, image } = req.body;
+      const newCategory = new Category({ name, description, image });
+      const savedCategory = await newCategory.save();
+      res.status(201).json(savedCategory);
+    } catch (error) {
+      next(error);
     }
-}
+  };
 
 exports.getAllRecipesByCategory=async(req, res, next)=> {
     try {

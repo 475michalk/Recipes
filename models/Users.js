@@ -24,7 +24,7 @@ const UserSchema = new mongoose.Schema({
      },
      password: {
         type: String,
-        required: true,
+        //required: true,
         match: /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/,
         minLength:4,
         maxLength:16
@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["Admin", "User"],
+        enum: ["Manager", "User"],
         default:"User"
     }
 });
@@ -73,7 +73,7 @@ module.exports.userValidators = {
 //יצירת טוקן
 module.exports.generateToken=(user)=> {
     const privateKey = process.env.JWT_SECRET || 'JWT_SECRET';
-    const data = { role: user.role, user_id: user._id };
+    const data = { role: user.role, user_id: user._id ,nameUser:user.nameUser};
     const token = Jwt.sign(data, privateKey, { expiresIn: '1h' });
     return token;
 }

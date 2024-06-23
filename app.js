@@ -1,4 +1,4 @@
-const express=require("express");
+const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 
@@ -6,41 +6,55 @@ const RecipeRouter = require("./routes/RecipesRoute");
 const CategoryRouter = require("./routes/CategoryRoute");
 const UserRouter = require("./routes/UsersRoute");
 const { pageNotFound, serverNotFound } = require("./middlewares/hendleError");
-// const { auth } = require("./middlewares/auth");
-
 
 require('dotenv').config();
 require('./config/DB');
 
+const fs = require("fs");
+const path = require("path");
+const app = express();
 
-const app=express();
+const imageDirectory = path.join(__dirname, 'uploads');
+let imageIndex = 0;
+
+app.use(cors()); // הוספת המידלוור של cors כאן
+
+app.get('/recipe/nextImage', (req, res) => {
+    fs.readdir(imageDirectory, (err, files) => {
+        if (err) {
+            res.status(500).json({ error: 'Error reading image directory' });
+        } else {
+            if (imageIndex >= files.length) {
+                imageIndex = 0; // Reset index when all images have been sent
+            }
+            const imagePath = path.join(imageDirectory, files[imageIndex]);
+            const imageUrl = `http://localhost:5000/images/${files[imageIndex]}`;
+            res.json({ imageUrl: imageUrl });
+            imageIndex++;
+        }
+    });
+});
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // req.body
+app.use(express.urlencoded({ extended: true }));
 
+app.use(morgan("dev"));
+app.use(cors()); // הוספת המידלוור של cors כאן
 
-app.use(morgan("dev"));//הדפסת המידע בכל בקשה
-
-app.use(cors());//גישה לכל הכתובות
-
-
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send('wellcome');
 });
 
-
 app.use('/images', express.static('uploads'));
 
-
-app.use("/user", UserRouter)
+app.use("/user", UserRouter);
 app.use("/recipe", RecipeRouter);
 app.use("/category", CategoryRouter);
 
-// אם הגענו לכאן - ניתוב לא קיים
 app.use(pageNotFound);
 app.use(serverNotFound);
 
-const port=process.env.PORT;
-app.listen(port, ()=>{
+const port = process.env.PORT;
+app.listen(port, () => {
     console.log("running at http://localhost:" + port);
 });

@@ -4,30 +4,29 @@ const { Schema } = mongoose;
 const RecipeSchema = new Schema({
   nameRecipe: {
     type: String,
-    // required: true,
+    required: true,
     minlength: 3,
     maxlength: 25
   },
   descriptionRecipe: {
     type: String,
-    // required: true,
-    minlength: 5,
-    maxlength: 200
+     required: true,
+     minlength: 5,
+     maxlength: 200
   },
   categoryName: {
-    type: [String],
-    required: true
-  },
+    type: [String]
+    },
   preparationTime: {
     type: Number,
-    // required: true,
-    min: 0
+     required: true,
+     min: 0
   },
   level: {
     type: Number,
-    // required: true,
-    min: 1,
-    max: 5
+     required: true,
+     min: 1,
+     max: 5
   },
   dateAdd: {
     type: Date,
@@ -36,11 +35,11 @@ const RecipeSchema = new Schema({
   layers: [{
     description: {
       type: String,
-      required: true
+       required: true
     },
     component: {
       type: [String],
-      required: true
+     required: true
     }
   }],
   instructionRecipe: {
@@ -58,7 +57,7 @@ const RecipeSchema = new Schema({
     },
     name: {
       type: String,
-      required: true
+     required: true
     }
   }],
   image: [String]
