@@ -51,7 +51,6 @@ exports.getAllRecipes = async (req, res, next) => {
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .select('-__v');
-  
       return res.json({
         recipes,
         total: totalRecipes
