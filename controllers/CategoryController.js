@@ -11,14 +11,25 @@ exports.getAllCategories = async (req, res, next) => {
     }
   };
   
-  exports.createCategory = async (req, res, next) => {
+  exports.createCategory = async (req, res) => {
     try {
-      const { name, description, image } = req.body;
-      const newCategory = new Category({ name, description, image });
-      const savedCategory = await newCategory.save();
-      res.status(201).json(savedCategory);
+      console.log('Request body:', req.body); // הוסף הדפסה ללוג
+      const { name, description } = req.body;
+  
+      // בדוק אם הקטגוריה כבר קיימת
+      let category = await Category.findOne({ name });
+      if (category) {
+        return res.status(400).json({ message: 'Category already exists' });
+      }
+  
+      // צור קטגוריה חדשה
+      category = new Category({ name, description: description || '' });
+      await category.save();
+  
+      res.status(201).json(category);
     } catch (error) {
-      next(error);
+      console.error('Error adding category:', error); // הדפס את השגיאה ללוג
+      res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
   };
 

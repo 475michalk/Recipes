@@ -60,3 +60,14 @@ exports.getAllUsers = async (req, res, next) => {
     }
 }
 
+exports.getAllUserNames = async (req, res, next) => {
+    try {
+        const users = await User.find().select('nameUser -_id');
+        const userNames = users.map(user => user.nameUser);
+        return res.json(userNames);
+    } catch (error) {
+        next(error);
+    }
+}
+
+

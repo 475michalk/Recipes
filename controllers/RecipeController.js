@@ -41,15 +41,28 @@ exports.getAllRecipes = async (req, res, next) => {
       next(error);
     }
   };
-exports.getAllR = async (req, res, next) => {
+  exports.getAllR = async (req, res, next) => {
+    const page = +req.query.page || 1;
+    const pageSize = +req.query.pageSize || 5;
+  
     try {
-        const recipes = await Recipe.find().select('-__v');
-        return res.json(recipes);
+      const totalRecipes = await Recipe.countDocuments();
+      const recipes = await Recipe.find()
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .select('-__v');
+  
+      return res.json({
+        recipes,
+        total: totalRecipes
+      });
     } catch (error) {
-        console.log(error); // יודפס השגיאה בקונסול
-        next(error);
+      console.log(error);
+      next(error);
     }
-};
+  };
+  
+  
 
 
 exports.getRecipesByUserId = async (req, res) => {
@@ -146,17 +159,17 @@ exports.createRecipe = async (req, res) => {
 
     const savedRecipe = await newRecipe.save();
 
-    const categoryPromises = newRecipe.categoryName.map(async categoryName => {
-      let category = await Category.findOne({ name: categoryName });
-      if (!category) {
-        category = new Category({ name: categoryName, description: '' }); // Adjust as necessary
-        await category.save();
-      }
-      category.recipes.push(savedRecipe._id);
-      await category.save();
-    });
+    // const categoryPromises = newRecipe.categoryName.map(async categoryName => {
+    //   let category = await Category.findOne({ name: categoryName });
+    //   if (!category) {
+    //     category = new Category({ name: categoryName, description: '' }); // Adjust as necessary
+    //     await category.save();
+    //   }
+    //   category.recipes.push(savedRecipe._id);
+    //   await category.save();
+    // });
 
-    await Promise.all(categoryPromises);
+    // await Promise.all(categoryPromises);
 
     res.status(201).json(savedRecipe);
   } catch (error) {
@@ -267,38 +280,38 @@ exports.updateRecipe = async (req, res, next) => {
 
 // ID מחיקת מתכון לפי 
 exports.deleteRecipe = async (req, res, next) => {
-    const id = req.params.id;
-    if (!mongoose.Types.ObjectId.isValid(id))
-        next({ message: 'id is not valid' })
+  const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+      return next({ message: 'id is not valid', status: 400 });
+  }
 
-    else {
-        try {
-            let recipe = await Recipe.findById(id);
-            if (!recipe)
-                return next({ message: 'recipe not found', status: 404 })
-            recipe.categories.forEach(async c => {
-                try {
-                    await Category.updateOne(
-                        { name: c },
-                        { $pull: { recipes: { _id: recipe._id } } }
-                    )
-                    let category = await Category.findOne({ name: c }).then(c => {
-                        return c;
-                    })
-                        .catch(err => {
-                            next({ message: 'category not found', status: 404 })
-                        });
-                    if (category.recipes.length === 0)
-                        await Category.findByIdAndDelete(category._id);
-                } catch (error) {
-                    next(error)
-                }
-            })
+  try {
+      const recipe = await Recipe.findById(id);
+      if (!recipe) {
+          return next({ message: 'recipe not found', status: 404 });
+      }
 
-            await Recipe.findByIdAndDelete(id)
-            return res.status(204).send();
-        } catch (error) {
-            next(error)
-        }
-    }
-}
+      if (Array.isArray(recipe.categories)) {
+          for (const categoryName of recipe.categories) {
+              try {
+                  await Category.updateOne(
+                      { name: categoryName },
+                      { $pull: { recipes: recipe._id } }
+                  );
+
+                  const category = await Category.findOne({ name: categoryName });
+                  if (category && category.recipes.length === 0) {
+                      await Category.findByIdAndDelete(category._id);
+                  }
+              } catch (error) {
+                  return next(error);
+              }
+          }
+      }
+
+      await Recipe.findByIdAndDelete(id);
+      return res.status(204).send();
+  } catch (error) {
+      return next(error);
+  }
+};

@@ -11,9 +11,7 @@ const CategorySchema = new Schema({
   },
   description: {
     type: String,
-    required: true,
-    minLength: 5,
-    maxLength: 50
+   
   },
   recipes: [{
     type: mongoose.Schema.Types.ObjectId,
