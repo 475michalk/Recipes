@@ -1,11 +1,10 @@
-כמובן! הנה קובץ README.md עם העיצוב והטבלאות בפורמט markdown, שתוכלי להעתיק או להוריד:
 
 ```markdown
 # Server Recipe
 
 ## Installation
 
-Before starting the server, make sure to install the necessary Node.js modules:
+### Before starting the server, make sure to install the necessary Node.js modules:
 
 ```sh
 npm install
@@ -15,7 +14,7 @@ npm install
 
 Create a `.env` file in the root directory of your project and add the following environment variables:
 
-```dotenv
+| dotenv
 | Variable     | Description                                                |
 | ------------ | ---------------------------------------------------------- |
 | DB_URL       | MongoDB connection URL for your database.                   |
