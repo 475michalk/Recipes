@@ -22,7 +22,7 @@ Create a `.env` file in the root directory of your project and add the following
 | BCRYPT_SALT  | Number of salt rounds for bcrypt hashing.                   |
 | JWT_SECRET   | Secret key used for signing JWT tokens.                    |
 
-```
+
 
 ## Endpoints
 
