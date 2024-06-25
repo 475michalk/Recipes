@@ -1,14 +1,13 @@
 
-```markdown
+
 # Server Recipe
 
 ## Installation
 
 ### Before starting the server, make sure to install the necessary Node.js modules:
 
-```sh
-npm install
-```
+### npm install
+
 
 ## Environment Variables
 
